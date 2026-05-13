@@ -8,8 +8,6 @@
 <meta name="apple-mobile-web-app-title" content="香菇計時">
 <title>🍄 香菇計時器</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-
   :root {
     --bg: #0e1a0f;
     --surface: #162018;
@@ -20,10 +18,11 @@
     --amber: #f0a830;
     --red: #e05050;
     --text: #d8eeda;
-    --text-muted: #6a8c6e;
+    --muted: #6a8c6e;
     --mono: 'DM Mono', monospace;
-    --sans: 'Noto Sans TC', sans-serif;
+    --sans: system-ui, sans-serif;
   }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -34,194 +33,189 @@
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
-    overflow-x: hidden;
+    padding-top: env(safe-area-inset-top, 12px);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px 8px;
+    padding: 14px 20px 8px;
   }
-  header h1 { font-size: 15px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.05em; }
-  #clock { font-family: var(--mono); font-size: 14px; color: var(--text-muted); }
+  header h1 { font-size: 14px; color: var(--muted); letter-spacing: 0.05em; }
+  #clock { font-family: var(--mono); font-size: 14px; color: var(--muted); }
 
-  .slots { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 8px 16px; overflow-y: auto; }
+  .slots { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 8px 14px; overflow-y: auto; }
 
   .slot {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 16px;
+    padding: 14px;
     display: grid;
     grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto;
-    gap: 10px 12px;
+    row-gap: 10px;
     transition: border-color 0.3s;
   }
   .slot.running { border-color: var(--green-dim); }
   .slot.urgent  { border-color: var(--amber); }
-  .slot.done    { border-color: var(--red); animation: pulse 0.7s ease-in-out infinite alternate; }
-  @keyframes pulse { from { border-color: var(--red); } to { border-color: #803030; } }
+  .slot.done    { border-color: var(--red); animation: blink 0.7s ease-in-out infinite alternate; }
+  @keyframes blink { from { border-color: var(--red); } to { border-color: #5a2020; } }
 
-  .slot-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 4px; }
-  .slot-name-row { display: flex; align-items: center; gap: 8px; }
+  /* row 1: name + btn */
+  .slot-name-row { display: flex; align-items: center; gap: 6px; }
   .slot-name {
-    font-size: 13px; color: var(--text-muted);
+    font-size: 12px; color: var(--muted);
     background: none; border: none; outline: none;
-    font-family: var(--sans); color: var(--text-muted);
-    width: 120px;
+    font-family: var(--sans); width: 100%;
   }
-  .slot-name::placeholder { color: var(--text-muted); opacity: 0.5; }
-
-  .slot-time {
-    font-family: var(--mono);
-    font-size: 44px; font-weight: 500; line-height: 1;
-    letter-spacing: -2px;
-    color: var(--text);
-    transition: color 0.3s;
-  }
-  .slot.idle .slot-time { color: var(--text-muted); font-size: 28px; line-height: 1.4; }
-  .slot.running .slot-time { color: var(--green); }
-  .slot.urgent .slot-time { color: var(--amber); }
-  .slot.done .slot-time { color: var(--red); font-size: 18px; line-height: 1; padding-top: 4px; }
-
-  .slot-sub { font-size: 11px; color: var(--text-muted); min-height: 14px; }
-
-  .slot-right { grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 8px; }
-
-  .tap-btn {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    border: 1px solid var(--green-dim);
-    background: rgba(78,203,106,0.08);
-    color: var(--green);
-    font-size: 26px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: transform 0.1s, background 0.2s;
-    flex-shrink: 0;
-  }
-  .tap-btn:active { transform: scale(0.9); }
-  .slot.done .tap-btn { border-color: var(--red); background: rgba(224,80,80,0.1); color: var(--red); }
-  .slot.running .tap-btn, .slot.urgent .tap-btn { border-color: var(--border); background: none; color: var(--text-muted); font-size: 16px; }
-
+  .slot-name::placeholder { color: var(--muted); opacity: 0.4; }
   .del-btn {
     background: none; border: none;
-    color: var(--text-muted); font-size: 16px; cursor: pointer;
-    opacity: 0.4; padding: 4px;
+    color: var(--muted); font-size: 14px; cursor: pointer;
+    opacity: 0.35; padding: 2px 4px; line-height: 1;
   }
   .del-btn:active { opacity: 1; color: var(--red); }
 
-  .bar-row { grid-column: 1 / 3; grid-row: 2; }
+  .tap-btn {
+    grid-column: 2; grid-row: 1 / 3;
+    align-self: center;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    border: 1px solid var(--green-dim);
+    background: rgba(78,203,106,0.07);
+    color: var(--green);
+    font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    margin-left: 10px;
+  }
+  .tap-btn:active { transform: scale(0.88); }
+  .slot.done .tap-btn { border-color: var(--red); background: rgba(224,80,80,0.08); color: var(--red); }
+  .slot.running .tap-btn,
+  .slot.urgent .tap-btn  { border-color: var(--border); background: none; color: var(--muted); font-size: 15px; }
+
+  /* row 2: time + sub */
+  .slot-body { display: flex; flex-direction: column; gap: 3px; }
+  .slot-time {
+    font-family: var(--mono);
+    font-size: 42px; font-weight: 500; line-height: 1;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+  .slot.idle .slot-time    { font-size: 20px; color: var(--muted); }
+  .slot.running .slot-time { color: var(--green); }
+  .slot.urgent .slot-time  { color: var(--amber); }
+  .slot.done .slot-time    { color: var(--red); font-size: 16px; }
+  .slot-sub { font-size: 11px; color: var(--muted); min-height: 14px; }
+
+  /* bar */
+  .bar-row { grid-column: 1 / 3; }
   .slot.idle .bar-row { display: none; }
-
-  .bar-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.9s linear, background 0.3s; }
+  .bar-track { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 1px; transition: width 0.9s linear, background 0.3s; }
   .slot.running .bar-fill { background: var(--green); }
-  .slot.urgent .bar-fill { background: var(--amber); }
-  .slot.done .bar-fill { background: var(--red); width: 100% !important; }
+  .slot.urgent .bar-fill  { background: var(--amber); }
+  .slot.done .bar-fill    { background: var(--red); width: 100% !important; }
 
-  .input-row {
-    grid-column: 1 / 3; grid-row: 3;
+  /* slider row */
+  .slider-row {
+    grid-column: 1 / 3;
     display: flex; align-items: center; gap: 8px;
-    background: var(--surface2); border-radius: 10px; padding: 8px 12px;
+    background: var(--surface2); border-radius: 10px; padding: 8px 10px;
   }
-  .input-row label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-  .input-row input[type=range] {
-    flex: 1; accent-color: var(--green);
-    height: 3px; cursor: pointer;
-  }
-  .input-row .val {
-    font-family: var(--mono); font-size: 14px;
-    color: var(--text); min-width: 36px; text-align: right;
-  }
-  .slot.running .input-row, .slot.urgent .input-row { opacity: 0.4; pointer-events: none; }
-  .slot.done .input-row { display: none; }
+  .slider-row label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--green); cursor: pointer; }
+  .slider-val { font-family: var(--mono); font-size: 13px; color: var(--text); min-width: 38px; text-align: right; white-space: nowrap; }
+  .slot.running .slider-row,
+  .slot.urgent .slider-row  { opacity: 0.35; pointer-events: none; }
+  .slot.done .slider-row    { display: none; }
 
+  /* bottom */
   .bottom-bar {
-    display: flex; gap: 10px; padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex; gap: 8px;
+    padding: 10px 14px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
   }
   .add-btn {
-    flex: 1; padding: 14px;
+    flex: 1; padding: 13px;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: var(--surface);
-    color: var(--text-muted); font-size: 14px;
+    color: var(--muted); font-size: 14px;
     cursor: pointer; font-family: var(--sans);
-    transition: background 0.15s, color 0.15s;
   }
   .add-btn:active { background: var(--surface2); color: var(--text); }
-  .reset-btn {
-    padding: 14px 20px;
+  .rst-btn {
+    padding: 13px 18px;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: none;
-    color: var(--text-muted); font-size: 13px;
+    color: var(--muted); font-size: 13px;
     cursor: pointer; font-family: var(--sans);
   }
-  .reset-btn:active { color: var(--red); border-color: var(--red); }
+  .rst-btn:active { color: var(--red); border-color: var(--red); }
 </style>
 </head>
 <body>
 
 <header>
   <h1>🍄 香菇計時器</h1>
-  <span id="clock">--:--:--</span>
+  <span id="clock"></span>
 </header>
 
 <div class="slots" id="slotList"></div>
 
 <div class="bottom-bar">
   <button class="add-btn" onclick="addSlot()">＋ 新增香菇</button>
-  <button class="reset-btn" onclick="resetAll()">全部重置</button>
+  <button class="rst-btn" onclick="resetAll()">重置全部</button>
 </div>
 
 <script>
-const SPAWN = 5 * 60;
+const SPAWN = 300; // 5分鐘固定重生
 let slots = [];
-let nextId = 1;
+let labelCounter = 1; // 流水號，只增不減
 let audioCtx = null;
 let alerted = new Set();
 
-function loadState() {
+function load() {
   try {
-    const saved = JSON.parse(localStorage.getItem('pk_v3') || 'null');
-    if (saved) {
-      slots = saved.slots || [];
-      nextId = saved.nextId || slots.length + 1;
-    }
+    const s = JSON.parse(localStorage.getItem('pk_v4') || 'null');
+    if (s) { slots = s.slots; labelCounter = s.labelCounter || slots.length + 1; }
   } catch(e) {}
-  if (slots.length === 0) {
-    slots = [
-      { id: nextId++, name: '香菇 1', extraMin: 0, endAt: null },
-      { id: nextId++, name: '香菇 2', extraMin: 0, endAt: null },
-      { id: nextId++, name: '香菇 3', extraMin: 0, endAt: null },
-    ];
+  if (!slots.length) {
+    slots = [mk(), mk(), mk()];
   }
 }
 
-function save() {
-  try { localStorage.setItem('pk_v3', JSON.stringify({ slots, nextId })); } catch(e) {}
+function mk() {
+  return { id: Date.now() + Math.random(), label: labelCounter++, name: '', extraSec: 0, endAt: null };
 }
 
-function getState(s) {
+function save() {
+  try { localStorage.setItem('pk_v4', JSON.stringify({ slots, labelCounter })); } catch(e) {}
+}
+
+function state(s) {
   if (!s.endAt) return 'idle';
-  const rem = s.endAt - Date.now();
-  if (rem <= 0) return 'done';
-  if (rem <= 60000) return 'urgent';
-  return 'running';
+  const r = s.endAt - Date.now();
+  return r <= 0 ? 'done' : r <= 60000 ? 'urgent' : 'running';
 }
 
 function fmt(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
-  const m = Math.floor(s / 60), sec = s % 60;
-  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
+
+function fmtSec(sec) {
+  if (sec === 0) return '已死';
+  return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+}
+
 function fmtClock(ts) {
   const d = new Date(ts);
-  return [d.getHours(), d.getMinutes(), d.getSeconds()].map(v => String(v).padStart(2,'0')).join(':');
+  return [d.getHours(),d.getMinutes(),d.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
 }
 
 function beep() {
@@ -243,48 +237,31 @@ function beep() {
 function startSlot(id) {
   const s = slots.find(x => x.id === id);
   if (!s) return;
-  const totalSec = SPAWN + (s.extraMin * 60);
-  s.endAt = Date.now() + totalSec * 1000;
+  s.endAt = Date.now() + (SPAWN + s.extraSec) * 1000;
   alerted.delete(id);
-  save();
-  renderSlot(id);
+  save(); renderSlot(id);
 }
 
 function resetSlot(id) {
   const s = slots.find(x => x.id === id);
   if (!s) return;
-  s.endAt = null;
-  alerted.delete(id);
-  save();
-  renderSlot(id);
+  s.endAt = null; alerted.delete(id);
+  save(); renderSlot(id);
 }
 
 function addSlot() {
-  slots.push({ id: nextId++, name: `香菇 ${slots.length + 1}`, extraMin: 0, endAt: null });
-  save();
-  renderAll();
+  slots.push(mk());
+  save(); renderAll();
 }
 
 function removeSlot(id) {
   slots = slots.filter(s => s.id !== id);
-  save();
-  renderAll();
+  save(); renderAll();
 }
 
 function resetAll() {
   slots.forEach(s => { s.endAt = null; alerted.delete(s.id); });
-  save();
-  renderAll();
-}
-
-function setExtra(id, val) {
-  const s = slots.find(x => x.id === id);
-  if (s) { s.extraMin = val; save(); }
-}
-
-function setName(id, val) {
-  const s = slots.find(x => x.id === id);
-  if (s) { s.name = val || s.name; save(); }
+  save(); renderAll();
 }
 
 function renderAll() {
@@ -292,7 +269,6 @@ function renderAll() {
   list.innerHTML = '';
   slots.forEach(s => {
     const el = document.createElement('div');
-    el.className = 'slot idle';
     el.id = 'slot-' + s.id;
     list.appendChild(el);
     renderSlot(s.id);
@@ -303,100 +279,76 @@ function renderSlot(id) {
   const s = slots.find(x => x.id === id);
   const el = document.getElementById('slot-' + id);
   if (!s || !el) return;
-  const state = getState(s);
+  const st = state(s);
   const rem = s.endAt ? Math.max(0, s.endAt - Date.now()) : 0;
-  const totalMs = (SPAWN + s.extraMin * 60) * 1000;
+  const totalMs = (SPAWN + s.extraSec) * 1000;
   const pct = s.endAt ? Math.min(100, Math.round((1 - rem / totalMs) * 100)) : 0;
-  const spawnAt = s.endAt ? fmtClock(s.endAt) : '';
-  const totalLabel = `${SPAWN / 60 + s.extraMin} 分鐘`;
+  const displayName = s.name || `香菇 ${s.label}`;
 
-  let timeText = '';
-  if (state === 'idle') timeText = `點擊開始\n${totalLabel}倒數`;
-  else if (state === 'done') timeText = '🍄 可以打了！';
-  else timeText = fmt(rem);
+  const timeText = st === 'idle' ? `5:00${s.extraSec ? ` + ${fmtSec(s.extraSec)}` : ''}` : st === 'done' ? '🍄 可以打了！' : fmt(rem);
+  const subText  = (st === 'running' || st === 'urgent') ? `重生於 ${fmtClock(s.endAt)}` : st === 'done' ? '點擊重新計時' : '';
+  const btnIcon  = st === 'idle' ? '🍄' : st === 'done' ? '↺' : '✕';
+  const btnFn    = st === 'idle' ? `startSlot` : `resetSlot`;
 
-  let subText = '';
-  if (state === 'running' || state === 'urgent') subText = `預計 ${spawnAt} 重生`;
-  else if (state === 'done') subText = '再次點擊重新計時';
-
-  let btnContent = '';
-  if (state === 'idle') btnContent = '🍄';
-  else if (state === 'done') btnContent = '↺';
-  else btnContent = '✕';
-
-  el.className = 'slot ' + state;
+  el.className = 'slot ' + st;
   el.innerHTML = `
-    <div class="slot-left">
-      <div class="slot-name-row">
-        <input class="slot-name" value="${s.name}" placeholder="香菇名稱"
-          onblur="setName(${id}, this.value)"
-          onkeydown="if(event.key==='Enter') this.blur()"
-          onclick="event.stopPropagation()"
-        />
-        <button class="del-btn" onclick="removeSlot(${id})" aria-label="刪除">✕</button>
-      </div>
-      <div class="slot-time" style="white-space:pre-line">${timeText}</div>
-      <div class="slot-sub">${subText}</div>
-    </div>
-    <div class="slot-right">
-      <button class="tap-btn" onclick="${state === 'idle' ? 'startSlot' : 'resetSlot'}(${id})" aria-label="計時">${btnContent}</button>
-    </div>
-    <div class="bar-row">
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-    </div>
-    <div class="input-row">
-      <label>香菇還要</label>
-      <input type="range" min="0" max="15" step="0.5" value="${s.extraMin}"
-        oninput="setExtra(${id}, parseFloat(this.value)); this.nextElementSibling.textContent = parseFloat(this.value) === 0 ? '已死' : parseFloat(this.value) + ' 分'"
+    <div class="slot-name-row">
+      <input class="slot-name" value="${s.name}" placeholder="${displayName}"
+        onblur="slots.find(x=>x.id==${id}).name=this.value; save();"
+        onkeydown="if(event.key==='Enter')this.blur()"
         onclick="event.stopPropagation()"
       />
-      <span class="val">${s.extraMin === 0 ? '已死' : s.extraMin + ' 分'}</span>
+      <button class="del-btn" onclick="removeSlot(${id})">✕</button>
+    </div>
+    <button class="tap-btn" onclick="${btnFn}(${id})">${btnIcon}</button>
+    <div class="slot-body">
+      <div class="slot-time">${timeText}</div>
+      <div class="slot-sub">${subText}</div>
+    </div>
+    <div class="bar-row"><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>
+    <div class="slider-row">
+      <label>血量剩</label>
+      <input type="range" min="0" max="900" step="5" value="${s.extraSec}"
+        oninput="
+          slots.find(x=>x.id==${id}).extraSec=+this.value;
+          this.nextElementSibling.textContent=+this.value===0?'已死':('${String.fromCharCode(43)}'+('0'+Math.floor(+this.value/60)).slice(-2)+':'+('0'+(+this.value%60)).slice(-2));
+          save();
+          document.querySelector('#slot-${id} .slot-time').textContent=+this.value===0?'05:00':'05:00 + '+('0'+Math.floor(+this.value/60)).slice(-2)+':'+('0'+(+this.value%60)).slice(-2);
+        "
+        onclick="event.stopPropagation()"
+      />
+      <span class="slider-val">${s.extraSec === 0 ? '已死' : '+' + fmtSec(s.extraSec)}</span>
     </div>
   `;
 }
 
 function tick() {
-  const now = Date.now();
-  document.getElementById('clock').textContent = fmtClock(now);
-
+  document.getElementById('clock').textContent = fmtClock(Date.now());
   slots.forEach(s => {
-    const state = getState(s);
+    const st = state(s);
     const el = document.getElementById('slot-' + s.id);
-    if (!el) return;
+    if (!el || st === 'idle') return;
 
-    if (state === 'done' && !alerted.has(s.id)) {
-      alerted.add(s.id);
-      beep();
-    }
+    if (st === 'done' && !alerted.has(s.id)) { alerted.add(s.id); beep(); }
 
-    if (state === 'idle') return;
-
-    const rem = s.endAt ? Math.max(0, s.endAt - now) : 0;
-    const totalMs = (SPAWN + s.extraMin * 60) * 1000;
+    const rem = Math.max(0, s.endAt - Date.now());
+    const totalMs = (SPAWN + s.extraSec) * 1000;
     const pct = Math.min(100, Math.round((1 - rem / totalMs) * 100));
 
-    el.className = 'slot ' + state;
-
+    el.className = 'slot ' + st;
     const timeEl = el.querySelector('.slot-time');
-    const subEl = el.querySelector('.slot-sub');
+    const subEl  = el.querySelector('.slot-sub');
     const fillEl = el.querySelector('.bar-fill');
-    const btnEl = el.querySelector('.tap-btn');
+    const btnEl  = el.querySelector('.tap-btn');
 
-    if (timeEl) timeEl.textContent = state === 'done' ? '🍄 可以打了！' : fmt(rem);
-    if (subEl) subEl.textContent = state === 'done' ? '再次點擊重新計時' : `預計 ${fmtClock(s.endAt)} 重生`;
+    if (timeEl) timeEl.textContent = st === 'done' ? '🍄 可以打了！' : fmt(rem);
+    if (subEl)  subEl.textContent  = st === 'done' ? '點擊重新計時' : `重生於 ${fmtClock(s.endAt)}`;
     if (fillEl) fillEl.style.width = pct + '%';
-    if (btnEl) {
-      btnEl.textContent = state === 'done' ? '↺' : '✕';
-      btnEl.onclick = state === 'done'
-        ? () => resetSlot(s.id)
-        : () => resetSlot(s.id);
-    }
+    if (btnEl)  { btnEl.textContent = st === 'done' ? '↺' : '✕'; btnEl.onclick = () => resetSlot(s.id); }
   });
 }
 
-loadState();
-renderAll();
-setInterval(tick, 500);
+load(); renderAll(); setInterval(tick, 500);
 </script>
 </body>
 </html>
