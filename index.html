@@ -11,34 +11,19 @@
 <title>🍄 香菇計時器</title>
 <style>
   :root {
-    --bg: #0e1a0f;
-    --surface: #162018;
-    --surface2: #1e2e20;
-    --border: #2a402c;
-    --green: #4ecb6a;
-    --green-dim: #2a6e3a;
-    --amber: #f0a830;
-    --red: #e05050;
-    --text: #d8eeda;
-    --muted: #6a8c6e;
-    --mono: 'DM Mono', monospace;
-    --sans: system-ui, sans-serif;
+    --bg: #0e1a0f; --surface: #162018; --surface2: #1e2e20;
+    --border: #2a402c; --green: #4ecb6a; --green-dim: #2a6e3a;
+    --amber: #f0a830; --red: #e05050; --text: #d8eeda; --muted: #6a8c6e;
+    --mono: 'DM Mono', monospace; --sans: system-ui, sans-serif;
   }
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    min-height: 100dvh; display: flex; flex-direction: column;
     padding-top: env(safe-area-inset-top, 12px);
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
-
   header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 20px 8px;
@@ -46,81 +31,85 @@
   header h1 { font-size: 14px; color: var(--muted); letter-spacing: 0.05em; }
   #clock { font-family: var(--mono); font-size: 14px; color: var(--muted); }
 
+  /* 通知權限橫幅 */
+  #notifBar {
+    margin: 0 14px 6px;
+    background: #1e1600; border: 1px solid #4a3300;
+    border-radius: 10px; padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  #notifBar span { font-size: 12px; color: var(--amber); }
+  #notifBar button {
+    background: var(--amber); color: #111; border: none;
+    border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    white-space: nowrap;
+  }
+  #notifBar.hidden { display: none; }
+
   .slots { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 8px 14px; overflow-y: auto; }
 
   .slot {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 14px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    row-gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px;
+    display: grid; grid-template-columns: 1fr auto; row-gap: 10px;
     transition: border-color 0.3s;
   }
   .slot.running { border-color: var(--green-dim); }
   .slot.urgent  { border-color: var(--amber); }
-  .slot.done    { border-color: var(--red); animation: blink 0.7s ease-in-out infinite alternate; }
-  @keyframes blink { from { border-color: var(--red); } to { border-color: #5a2020; } }
+  .slot.done    { border-color: var(--red); animation: blink 0.6s ease-in-out infinite alternate; }
+  @keyframes blink {
+    from { border-color: var(--red); }
+    to   { border-color: #ff8888; box-shadow: 0 0 10px #e0505044; }
+  }
 
-  /* row 1: name + btn */
   .slot-name-row { display: flex; align-items: center; gap: 6px; }
   .slot-name {
     font-size: 12px; color: var(--muted);
-    background: none; border: none; outline: none;
-    font-family: var(--sans); width: 100%;
+    background: none; border: none; outline: none; font-family: var(--sans); width: 100%;
   }
   .slot-name::placeholder { color: var(--muted); opacity: 0.4; }
   .del-btn {
-    background: none; border: none;
-    color: var(--muted); font-size: 14px; cursor: pointer;
-    opacity: 0.35; padding: 2px 4px; line-height: 1;
+    background: none; border: none; color: var(--muted);
+    font-size: 14px; cursor: pointer; opacity: 0.35; padding: 2px 4px;
   }
   .del-btn:active { opacity: 1; color: var(--red); }
 
   .tap-btn {
-    grid-column: 2; grid-row: 1 / 3;
-    align-self: center;
-    width: 58px; height: 58px;
-    border-radius: 50%;
-    border: 1px solid var(--green-dim);
-    background: rgba(78,203,106,0.07);
-    color: var(--green);
-    font-size: 24px;
+    grid-column: 2; grid-row: 1 / 3; align-self: center;
+    width: 58px; height: 58px; border-radius: 50%;
+    border: 1px solid var(--green-dim); background: rgba(78,203,106,0.07);
+    color: var(--green); font-size: 24px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: transform 0.1s;
-    margin-left: 10px;
+    cursor: pointer; transition: transform 0.1s; margin-left: 10px;
   }
   .tap-btn:active { transform: scale(0.88); }
-  .slot.done .tap-btn { border-color: var(--red); background: rgba(224,80,80,0.08); color: var(--red); }
+  .slot.done .tap-btn {
+    border-color: var(--red); background: rgba(224,80,80,0.1); color: var(--red);
+    animation: tapPulse 0.7s ease-in-out infinite alternate;
+  }
+  @keyframes tapPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
   .slot.running .tap-btn,
-  .slot.urgent .tap-btn  { border-color: var(--border); background: none; color: var(--muted); font-size: 15px; }
+  .slot.urgent  .tap-btn { border-color: var(--border); background: none; color: var(--muted); font-size: 15px; }
 
-  /* row 2: time + sub */
   .slot-body { display: flex; flex-direction: column; gap: 3px; }
   .slot-time {
-    font-family: var(--mono);
-    font-size: 42px; font-weight: 500; line-height: 1;
-    letter-spacing: -1px;
-    color: var(--text);
+    font-family: var(--mono); font-size: 42px; font-weight: 500;
+    line-height: 1; letter-spacing: -1px; color: var(--text);
   }
   .slot.idle .slot-time    { font-size: 20px; color: var(--muted); }
   .slot.running .slot-time { color: var(--green); }
-  .slot.urgent .slot-time  { color: var(--amber); }
-  .slot.done .slot-time    { color: var(--red); font-size: 16px; }
+  .slot.urgent  .slot-time { color: var(--amber); }
+  .slot.done    .slot-time { color: var(--red); font-size: 16px; }
   .slot-sub { font-size: 11px; color: var(--muted); min-height: 14px; }
 
-  /* bar */
   .bar-row { grid-column: 1 / 3; }
   .slot.idle .bar-row { display: none; }
   .bar-track { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 1px; transition: width 0.9s linear, background 0.3s; }
   .slot.running .bar-fill { background: var(--green); }
-  .slot.urgent .bar-fill  { background: var(--amber); }
-  .slot.done .bar-fill    { background: var(--red); width: 100% !important; }
+  .slot.urgent  .bar-fill { background: var(--amber); }
+  .slot.done    .bar-fill { background: var(--red); width: 100% !important; }
 
-  /* slider row */
   .slider-row {
     grid-column: 1 / 3;
     display: flex; align-items: center; gap: 8px;
@@ -128,34 +117,29 @@
   }
   .slider-row label { font-size: 11px; color: var(--muted); white-space: nowrap; }
   .slider-row input[type=range] { flex: 1; accent-color: var(--green); cursor: pointer; }
-  .slider-val { font-family: var(--mono); font-size: 13px; color: var(--text); min-width: 38px; text-align: right; white-space: nowrap; }
+  .slider-val {
+    font-family: var(--mono); font-size: 13px; color: var(--text);
+    min-width: 38px; text-align: right; white-space: nowrap;
+  }
   .slot.running .slider-row,
-  .slot.urgent .slider-row  { opacity: 0.35; pointer-events: none; }
-  .slot.done .slider-row    { display: none; }
+  .slot.urgent  .slider-row { opacity: 0.35; pointer-events: none; }
+  .slot.done    .slider-row { display: none; }
 
-  /* bottom */
   .bottom-bar {
-    display: flex; gap: 8px;
-    padding: 10px 14px;
+    display: flex; gap: 8px; padding: 10px 14px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
   }
   .add-btn {
-    flex: 1; padding: 13px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted); font-size: 14px;
-    cursor: pointer; font-family: var(--sans);
+    flex: 1; padding: 13px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); font-size: 14px; cursor: pointer; font-family: var(--sans);
   }
   .add-btn:active { background: var(--surface2); color: var(--text); }
   .rst-btn {
-    padding: 13px 18px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: none;
-    color: var(--muted); font-size: 13px;
-    cursor: pointer; font-family: var(--sans);
+    padding: 13px 18px; border-radius: 12px;
+    border: 1px solid var(--border); background: none;
+    color: var(--muted); font-size: 13px; cursor: pointer; font-family: var(--sans);
   }
   .rst-btn:active { color: var(--red); border-color: var(--red); }
 </style>
@@ -167,6 +151,11 @@
   <span id="clock"></span>
 </header>
 
+<div id="notifBar">
+  <span>⚠️ 允許通知才能收到提醒</span>
+  <button onclick="requestNotif()">允許</button>
+</div>
+
 <div class="slots" id="slotList"></div>
 
 <div class="bottom-bar">
@@ -175,20 +164,58 @@
 </div>
 
 <script>
-const SPAWN = 300; // 5分鐘固定重生
-let slots = [];
-let labelCounter = 1; // 流水號，只增不減
-let audioCtx = null;
+const SPAWN = 300;
+let slots = [], labelCounter = 1;
 let alerted = new Set();
 
+// ── 通知 ──────────────────────────────────────────
+function checkBanner() {
+  if (!('Notification' in window) || Notification.permission === 'granted')
+    document.getElementById('notifBar').classList.add('hidden');
+}
+
+function requestNotif() {
+  Notification.requestPermission().then(p => {
+    if (p === 'granted') document.getElementById('notifBar').classList.add('hidden');
+  });
+}
+
+function notify(name) {
+  // 震動（Android 支援，iOS 需用戶互動後才有效）
+  try { navigator.vibrate && navigator.vibrate([200, 100, 200, 100, 500]); } catch(e) {}
+
+  // 系統橫幅通知
+  if (Notification.permission === 'granted') {
+    new Notification('🍄 ' + name + ' 可以打了！', {
+      body: '5 分鐘重生時間到',
+      icon: 'icon-192.png',
+      tag: 'pk-' + name,   // 同名通知會取代，不會疊很多
+      renotify: true,
+      silent: true,         // 只震動不出聲
+    });
+  }
+}
+
+// ── Wake Lock（防螢幕熄滅）────────────────────────
+let wakeLock = null;
+async function keepAwake() {
+  try {
+    if ('wakeLock' in navigator)
+      wakeLock = await navigator.wakeLock.request('screen');
+  } catch(e) {}
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') keepAwake();
+});
+keepAwake();
+
+// ── 資料 ──────────────────────────────────────────
 function load() {
   try {
-    const s = JSON.parse(localStorage.getItem('pk_v4') || 'null');
+    const s = JSON.parse(localStorage.getItem('pk_v5') || 'null');
     if (s) { slots = s.slots; labelCounter = s.labelCounter || slots.length + 1; }
   } catch(e) {}
-  if (!slots.length) {
-    slots = [mk(), mk(), mk()];
-  }
+  if (!slots.length) slots = [mk(), mk(), mk()];
 }
 
 function mk() {
@@ -196,10 +223,10 @@ function mk() {
 }
 
 function save() {
-  try { localStorage.setItem('pk_v4', JSON.stringify({ slots, labelCounter })); } catch(e) {}
+  try { localStorage.setItem('pk_v5', JSON.stringify({ slots, labelCounter })); } catch(e) {}
 }
 
-function state(s) {
+function getState(s) {
   if (!s.endAt) return 'idle';
   const r = s.endAt - Date.now();
   return r <= 0 ? 'done' : r <= 60000 ? 'urgent' : 'running';
@@ -209,33 +236,16 @@ function fmt(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
   return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
-
 function fmtSec(sec) {
   if (sec === 0) return '已死';
-  return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  return `+${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
 }
-
 function fmtClock(ts) {
   const d = new Date(ts);
   return [d.getHours(),d.getMinutes(),d.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
 }
 
-function beep() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    [[880,0],[1100,0.2],[880,0.4]].forEach(([f,t]) => {
-      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-      o.connect(g); g.connect(audioCtx.destination);
-      o.frequency.value = f;
-      const ct = audioCtx.currentTime + t;
-      g.gain.setValueAtTime(0.3, ct);
-      g.gain.linearRampToValueAtTime(0, ct + 0.15);
-      o.start(ct); o.stop(ct + 0.18);
-    });
-  } catch(e) {}
-  try { navigator.vibrate && navigator.vibrate([100,60,100,60,250]); } catch(e) {}
-}
-
+// ── 操作 ──────────────────────────────────────────
 function startSlot(id) {
   const s = slots.find(x => x.id === id);
   if (!s) return;
@@ -252,13 +262,11 @@ function resetSlot(id) {
 }
 
 function addSlot() {
-  slots.push(mk());
-  save(); renderAll();
+  slots.push(mk()); save(); renderAll();
 }
 
 function removeSlot(id) {
-  slots = slots.filter(s => s.id !== id);
-  save(); renderAll();
+  slots = slots.filter(s => s.id !== id); save(); renderAll();
 }
 
 function resetAll() {
@@ -266,6 +274,7 @@ function resetAll() {
   save(); renderAll();
 }
 
+// ── 渲染 ──────────────────────────────────────────
 function renderAll() {
   const list = document.getElementById('slotList');
   list.innerHTML = '';
@@ -281,28 +290,29 @@ function renderSlot(id) {
   const s = slots.find(x => x.id === id);
   const el = document.getElementById('slot-' + id);
   if (!s || !el) return;
-  const st = state(s);
+  const st = getState(s);
   const rem = s.endAt ? Math.max(0, s.endAt - Date.now()) : 0;
   const totalMs = (SPAWN + s.extraSec) * 1000;
   const pct = s.endAt ? Math.min(100, Math.round((1 - rem / totalMs) * 100)) : 0;
   const displayName = s.name || `香菇 ${s.label}`;
 
-  const timeText = st === 'idle' ? `5:00${s.extraSec ? ` + ${fmtSec(s.extraSec)}` : ''}` : st === 'done' ? '🍄 可以打了！' : fmt(rem);
-  const subText  = (st === 'running' || st === 'urgent') ? `重生於 ${fmtClock(s.endAt)}` : st === 'done' ? '點擊重新計時' : '';
-  const btnIcon  = st === 'idle' ? '🍄' : st === 'done' ? '↺' : '✕';
-  const btnFn    = st === 'idle' ? `startSlot` : `resetSlot`;
+  const timeText = st === 'idle'
+    ? `05:00${s.extraSec ? ' + ' + fmtSec(s.extraSec).replace('+','') : ''}`
+    : st === 'done' ? '🍄 可以打了！' : fmt(rem);
+  const subText = (st === 'running' || st === 'urgent') ? `重生於 ${fmtClock(s.endAt)}` : st === 'done' ? '點擊重新計時' : '';
+  const btnIcon = st === 'idle' ? '🍄' : st === 'done' ? '↺' : '✕';
+  const btnFn   = st === 'idle' ? 'startSlot' : 'resetSlot';
 
   el.className = 'slot ' + st;
   el.innerHTML = `
     <div class="slot-name-row">
       <input class="slot-name" value="${s.name}" placeholder="${displayName}"
-        onblur="slots.find(x=>x.id==${id}).name=this.value; save();"
+        onblur="slots.find(x=>x.id==${id}).name=this.value;save();"
         onkeydown="if(event.key==='Enter')this.blur()"
-        onclick="event.stopPropagation()"
-      />
+        onclick="event.stopPropagation()" />
       <button class="del-btn" onclick="removeSlot(${id})">✕</button>
     </div>
-    <button class="tap-btn" onclick="${btnFn}(${id})">${btnIcon}</button>
+    <button class="tap-btn" onclick="initAndStart('${btnFn}',${id})">${btnIcon}</button>
     <div class="slot-body">
       <div class="slot-time">${timeText}</div>
       <div class="slot-sub">${subText}</div>
@@ -311,29 +321,48 @@ function renderSlot(id) {
     <div class="slider-row">
       <label>血量剩</label>
       <input type="range" min="0" max="900" step="5" value="${s.extraSec}"
-        oninput="
-          slots.find(x=>x.id==${id}).extraSec=+this.value;
-          this.nextElementSibling.textContent=+this.value===0?'已死':('${String.fromCharCode(43)}'+('0'+Math.floor(+this.value/60)).slice(-2)+':'+('0'+(+this.value%60)).slice(-2));
-          save();
-          document.querySelector('#slot-${id} .slot-time').textContent=+this.value===0?'05:00':'05:00 + '+('0'+Math.floor(+this.value/60)).slice(-2)+':'+('0'+(+this.value%60)).slice(-2);
-        "
-        onclick="event.stopPropagation()"
-      />
-      <span class="slider-val">${s.extraSec === 0 ? '已死' : '+' + fmtSec(s.extraSec)}</span>
-    </div>
-  `;
+        oninput="onSlider(${id}, +this.value)"
+        onclick="event.stopPropagation()" />
+      <span class="slider-val">${fmtSec(s.extraSec)}</span>
+    </div>`;
 }
 
+function onSlider(id, val) {
+  const s = slots.find(x => x.id === id);
+  if (!s) return;
+  s.extraSec = val; save();
+  const el = document.getElementById('slot-' + id);
+  if (!el) return;
+  el.querySelector('.slider-val').textContent = fmtSec(val);
+  if (getState(s) === 'idle') {
+    el.querySelector('.slot-time').textContent =
+      `05:00${val ? ' + ' + fmtSec(val).replace('+','') : ''}`;
+  }
+}
+
+// 第一次點按鈕時同時初始化（確保震動可觸發）
+function initAndStart(fn, id) {
+  if (fn === 'startSlot') startSlot(id);
+  else resetSlot(id);
+}
+
+// ── Tick ──────────────────────────────────────────
 function tick() {
-  document.getElementById('clock').textContent = fmtClock(Date.now());
+  const now = Date.now();
+  document.getElementById('clock').textContent = fmtClock(now);
+
   slots.forEach(s => {
-    const st = state(s);
+    const st = getState(s);
     const el = document.getElementById('slot-' + s.id);
     if (!el || st === 'idle') return;
 
-    if (st === 'done' && !alerted.has(s.id)) { alerted.add(s.id); beep(); }
+    // 時間到 → 觸發提醒
+    if (st === 'done' && !alerted.has(s.id)) {
+      alerted.add(s.id);
+      notify(s.name || `香菇 ${s.label}`);
+    }
 
-    const rem = Math.max(0, s.endAt - Date.now());
+    const rem = Math.max(0, s.endAt - now);
     const totalMs = (SPAWN + s.extraSec) * 1000;
     const pct = Math.min(100, Math.round((1 - rem / totalMs) * 100));
 
@@ -346,11 +375,14 @@ function tick() {
     if (timeEl) timeEl.textContent = st === 'done' ? '🍄 可以打了！' : fmt(rem);
     if (subEl)  subEl.textContent  = st === 'done' ? '點擊重新計時' : `重生於 ${fmtClock(s.endAt)}`;
     if (fillEl) fillEl.style.width = pct + '%';
-    if (btnEl)  { btnEl.textContent = st === 'done' ? '↺' : '✕'; btnEl.onclick = () => resetSlot(s.id); }
+    if (btnEl)  { btnEl.textContent = st === 'done' ? '↺' : '✕'; btnEl.onclick = () => (st === 'done' ? resetSlot : resetSlot)(s.id); }
   });
 }
 
-load(); renderAll(); setInterval(tick, 500);
+checkBanner();
+load();
+renderAll();
+setInterval(tick, 500);
 </script>
 </body>
 </html>
